@@ -1,0 +1,21 @@
+﻿@page
+@model SchoolAccountSync.Pages.UserModel
+<h1>@Model.User.FullName()</h1>
+<div class="user-profile-info">
+    <span>Školní email: @Model.User.SchoolEmail</span>
+    <span>Osobní email: @Model.User.PersonalEmail</span>
+    <span>Datum narození: @Model.User.Birthdate.ToString("d. M. yyyy") (@Model.User.GetAge() let)</span>
+    <span>Typ uživatele: @Model.User.UserType</span>
+    <span>Stav: @Model.User.Status</span>
+    <span>ID: @Model.User.Id</span>
+    <form method="post">
+        <input type="hidden" asp-for="User.Id" />
+        <label asp-for="User.Rfid"></label><input asp-for="User.Rfid" />
+        <input type="submit" value="Ulozit"/>
+    </form>
+    @Model.StatusMessage
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

@@ -1,10 +1,20 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Dashboard";
 }
+<h1 class="display-4">School account sync website</h1>
+<div class="user-list">
+    @foreach (var u in Model.Users)
+    {
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+        <div class='user-item'>
+            <div>
+                <span class="user-info-primary">@u.FullName()</span>
+                <span class="user-info-secondary">@u.PersonalEmail / @u.SchoolEmail</span>
+            </div>
+            <a class="button-primary" asp-page="User" asp-route-id="@u.Id" >Zobrazit</a>
+        </div>
+
+    }
 </div>
