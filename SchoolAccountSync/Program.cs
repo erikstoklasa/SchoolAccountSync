@@ -1,7 +1,10 @@
+using SchoolAccountSync.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<BakalariService>();
 
 var app = builder.Build();
 
