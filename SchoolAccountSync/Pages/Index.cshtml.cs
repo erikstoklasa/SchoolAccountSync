@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using SchoolAccountSync.Models;
 using SchoolAccountSync.Services;
 
@@ -8,18 +7,20 @@ namespace SchoolAccountSync.Pages
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
-        private readonly BakalariService studentService;
-        public ICollection<User> Users { get; set; }
+        private readonly LocalUserService localUserService;
 
-        public IndexModel(ILogger<IndexModel> logger, BakalariService studentService)
+        public IEnumerable<User> Users { get; set; }
+
+        public IndexModel(ILogger<IndexModel> logger, LocalUserService localUserService)
         {
             _logger = logger;
-            this.studentService = studentService;
+            this.localUserService = localUserService;
+            Users = new List<User>();
         }
 
-        public async Task OnGet()
+        public async Task OnGetAsync()
         {
-            Users = await studentService.GetStudents();
+            Users = await localUserService.GetUsers();
         }
     }
 }

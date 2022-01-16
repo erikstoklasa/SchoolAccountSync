@@ -6,23 +6,31 @@ namespace SchoolAccountSync.Models
     public class User
     {
         public string Id { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
+        [MaxLength(30)]
+        public string FirstName { get; set; }
+        [MaxLength(30)]
+        public string LastName { get; set; }
         [DataType(DataType.Date)]
         public DateOnly Birthdate { get; set; }
+        [MaxLength(4)]
+        public string Class { get; set; }
         [EmailAddress]
+        [MaxLength(35)]
         public string? SchoolEmail { get; set; }
         [EmailAddress]
+        [MaxLength(35)]
         public string? PersonalEmail { get; set; }
         public int Rfid { get; set; }
+        [MaxLength(4)]
+        public string LockerNumber { get; set; }
+        [MaxLength(20)]
         public string? TempPassword { get; set; }
         public StatusTypes Status { get; set; }
         public UserTypes UserType { get; set; }
         public string FullName() => FirstName + " " + LastName;
         public override string ToString()
         {
-            return $"Id:{Id},FirstName:{FirstName},LastName:{LastName},Birthdate:{Birthdate}," +
-                $"SchoolEmail:{SchoolEmail},PersonalEmail:{PersonalEmail},Status:{Status}";
+            return $"{Id},{FirstName},{LastName},{Birthdate},{Class},{SchoolEmail},{PersonalEmail},{Rfid},{LockerNumber},{Status},{UserType}";
         }
         public int GetAge()
         {
@@ -62,6 +70,7 @@ namespace SchoolAccountSync.Models
             letterPairs.Add('č', 'c');
             letterPairs.Add('ď', 'd');
             letterPairs.Add('é', 'e');
+            letterPairs.Add('ě', 'e');
             letterPairs.Add('í', 'i');
             letterPairs.Add('ň', 'n');
             letterPairs.Add('ó', 'o');
@@ -97,7 +106,7 @@ namespace SchoolAccountSync.Models
             }
             return sb.ToString();
         }
-        
+
     }
     public enum StatusTypes { Normal, Abroad, ToDelete }
     public enum UserTypes { Teacher, Student }
