@@ -1,0 +1,41 @@
+﻿@page
+@model SchoolAccountSync.Pages.Sync.BakalariModel
+@{
+    ViewData["Title"] = "Bakalari sync";
+}
+<h1>Synchronizace</h1>
+@if (Model.ErrorMessage.Length > 0)
+{
+    <div class="alert alert-danger" role="alert">
+        @Model.ErrorMessage
+    </div>
+}
+@if (Model.SuccessMessage.Length > 0)
+{
+    <div class="alert alert-success" role="alert">
+        @Model.SuccessMessage
+    </div>
+}
+    <h2>Změny (@Model.UsersWithChanges.Count)</h2>
+@if (Model.UsersWithChanges.Any())
+{
+    @foreach (var (user, changes) in Model.UsersWithChanges)
+    {
+        <div class="change-item">
+            <div>
+                <span class="change-detail-heading">@user.FullName()</span>
+                <span class="change-detail-subheading">@user.Id</span>
+            </div>
+            @foreach (var change in changes)
+            {
+                <div class="change-detail-info">
+                    <span class="change-new">@change.NewValue</span>
+                    <span class="change-old">@change.OldValue</span>
+                </div>
+            }
+        </div>
+    }
+    <div class="button-row">
+        <a class="button-primary" asp-page="/Sync/Bakalari" asp-page-handler="ConfirmChanges">Provést všechny změny</a>
+    </div>
+}

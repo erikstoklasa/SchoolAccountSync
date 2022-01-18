@@ -12,12 +12,17 @@ namespace SchoolAccountSync.Services
         {
             this.configuration = configuration;
         }
+        /// <summary>
+        /// Gets students from the Bakalari SQL Server
+        /// </summary>
+        /// <returns>List of students</returns>
+        /// <exception cref="SqlException">Thrown when connection could not be established.</exception>
         public async Task<ICollection<User>> GetStudents()
         {
             List<User> users = new();
             using SqlConnection con = new(configuration["BakalariService:DevelopmentConn"]);
             con.Open();
-            using SqlCommand command = new("SELECT [INTERN_KOD],[JMENO],[PRIJMENI],[DATUM_NAR],[E_MAIL],[DELETED_RC] FROM zaci ORDER BY [PRIJMENI] ASC;", con);
+            using SqlCommand command = new("SELECT [INTERN_KOD],[JMENO],[PRIJMENI],[DATUM_NAR],[E_MAIL],[DELETED_RC],[SKRINKA_C],[TRIDA] FROM zaci ORDER BY [PRIJMENI] ASC;", con);
             using SqlDataReader reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
@@ -31,18 +36,25 @@ namespace SchoolAccountSync.Services
                     PersonalEmail = reader.GetString(4).Trim(),
                     Status = reader.GetBoolean(5) ? StatusTypes.Abroad : StatusTypes.Normal,
                     UserType = UserTypes.Student,
+                    LockerNumber = reader.GetString(6).Replace(" ", ""),
+                    Class = reader.GetString(7).Trim(),
                 };
                 user.SchoolEmail = User.GenerateSchoolEmail(user.FirstName, user.LastName, user.UserType);
                 users.Add(user);
             }
             return users;
         }
+        /// <summary>
+        /// Gets a student from the Bakalari SQL Server by id
+        /// </summary>
+        /// <returns>List of students</returns>
+        /// <exception cref="SqlException">Thrown when connection could not be established.</exception>
         public async Task<User> GetStudent(string id)
         {
 
             using SqlConnection con = new(configuration["BakalariService:DevelopmentConn"]);
             con.Open();
-            using SqlCommand command = new("SELECT TOP (1) [INTERN_KOD],[JMENO],[PRIJMENI],[DATUM_NAR],[E_MAIL],[DELETED_RC] FROM zaci WHERE [INTERN_KOD] = @Id;", con);
+            using SqlCommand command = new("SELECT TOP (1) [INTERN_KOD],[JMENO],[PRIJMENI],[DATUM_NAR],[E_MAIL],[DELETED_RC],[SKRINKA_C],[TRIDA] FROM zaci WHERE [INTERN_KOD] = @Id;", con);
             SqlParameter parameterId = new("@Id", id);
             command.Parameters.Add(parameterId);
             using SqlDataReader reader = await command.ExecuteReaderAsync();
@@ -57,6 +69,8 @@ namespace SchoolAccountSync.Services
                 PersonalEmail = reader.GetString(4).Trim(),
                 Status = reader.GetBoolean(5) ? StatusTypes.Abroad : StatusTypes.Normal,
                 UserType = UserTypes.Student,
+                LockerNumber = reader.GetString(6).Replace(" ", ""),
+                Class = reader.GetString(7).Trim(),
             };
             user.SchoolEmail = User.GenerateSchoolEmail(user.FirstName, user.LastName, user.UserType);
             return user;
