@@ -1,21 +1,35 @@
 ﻿@page
 @model SchoolAccountSync.Pages.UserModel
+@{
+    ViewData["Title"] = "Student detail";
+}
 <h1>@Model.User.FullName()</h1>
 <div class="user-profile-info">
     <span>Školní email: @Model.User.SchoolEmail</span>
     <span>Osobní email: @Model.User.PersonalEmail</span>
     <span>Datum narození: @Model.User.Birthdate.ToString("d. M. yyyy") (@Model.User.GetAge() let)</span>
     <span>Typ uživatele: @Model.User.UserType</span>
+    <span>Skříňka: @Model.User.LockerNumber</span>
+    <span>Třída: @Model.User.Class</span>
     <span>Stav: @Model.User.Status</span>
     <span>ID: @Model.User.Id</span>
+    <span>Jednorázové heslo: @Model.User.TempPassword</span>
     <form method="post">
         <input type="hidden" asp-for="User.Id" />
-        <label asp-for="User.Rfid"></label><input asp-for="User.Rfid" />
-        <input type="submit" value="Ulozit"/>
+        <label asp-for="User.Rfid">Rfid:</label>
+        <input class="mx-2" asp-for="User.Rfid" autofocus />
+        <input class="button-primary mt-2" type="submit" value="Uložit" />
     </form>
-    @Model.StatusMessage
+    @if (Model.SuccessMessage.Length > 0)
+    {
+        <div class="alert alert-success" role="alert">
+            @Model.SuccessMessage
+        </div>
+    }
 </div>
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
 }
 

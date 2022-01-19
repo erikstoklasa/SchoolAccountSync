@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SchoolAccountSync.Models;
 using SchoolAccountSync.Services;
@@ -7,24 +7,29 @@ namespace SchoolAccountSync.Pages
 {
     public class UserModel : PageModel
     {
-        private readonly BakalariService bakalariService;
+        private readonly LocalUserService localUserService;
+
         [BindProperty]
         public User User { get; set; }
-        public string StatusMessage { get; set; }
+        public string SuccessMessage { get; set; }
 
-        public UserModel(BakalariService bakalariService)
+        public UserModel(LocalUserService localUserService)
         {
-            this.bakalariService = bakalariService;
+            this.localUserService = localUserService;
             User = new User();
+            SuccessMessage = "";
         }
         public async Task OnGet(string id)
         {
-            User = await bakalariService.GetStudent(id);
+            User = await localUserService.GetUser(id);
         }
         public async Task<IActionResult> OnPostAsync()
         {
-            StatusMessage = "Updated user Rfid!";
-            User = await bakalariService.GetStudent(User.Id);
+            SuccessMessage = "Rfid úspěšně aktualozováno!";
+            int rfid = User.Rfid;
+            User = await localUserService.GetUser(User.Id);
+            User.Rfid = rfid;
+            await localUserService.UpdateUser(User);
             return Page();
         }
     }
