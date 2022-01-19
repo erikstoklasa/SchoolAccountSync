@@ -8,31 +8,31 @@ namespace SchoolAccountSync.Pages.Sync
 {
     public class BakalariModel : PageModel
     {
-        private readonly BakalariService studentService;
+        private readonly BakalariUserService studentService;
         private readonly LocalUserService localUserService;
 
-        public BakalariModel(BakalariService studentService, LocalUserService localUserService)
+        public BakalariModel(BakalariUserService studentService, LocalUserService localUserService)
         {
             this.studentService = studentService;
             this.localUserService = localUserService;
-            UsersWithChanges = new List<(User, IEnumerable<Change>)>();
+            UsersWithChanges = new List<(LocalUser, IEnumerable<Change>)>();
             ErrorMessage = "";
             SuccessMessage = "";
-            Users = new List<User>();
+            Users = new List<LocalUser>();
         }
-        public IEnumerable<User> Users { get; set; }
-        public List<(User, IEnumerable<Change>)> UsersWithChanges { get; set; }
+        public IEnumerable<LocalUser> Users { get; set; }
+        public List<(LocalUser, IEnumerable<Change>)> UsersWithChanges { get; set; }
         public string ErrorMessage { get; set; }
         public string SuccessMessage { get; set; }
         public async Task OnGetAsync()
         {
             try
             {
-                IEnumerable<User> masterList = await studentService.GetStudents();
+                IEnumerable<LocalUser> masterList = await studentService.GetStudents();
                 Users = await localUserService.GetUsers();
                 foreach (var bakaUser in masterList)
                 {
-                    User? localUser = Users.FirstOrDefault(u => u.Id == bakaUser.Id);
+                    LocalUser? localUser = Users.FirstOrDefault(u => u.Id == bakaUser.Id);
                     if (localUser == null) continue;
                     IEnumerable<Change> changes = CompareService.GetDifferences(oldUser: localUser, newUser: bakaUser);
                     if (changes.Any())
@@ -50,12 +50,12 @@ namespace SchoolAccountSync.Pages.Sync
         {
             try
             {
-                IEnumerable<User> masterList = await studentService.GetStudents();
+                IEnumerable<LocalUser> masterList = await studentService.GetStudents();
                 Users = await localUserService.GetUsers();
                 int updatedUsers = 0;
                 foreach (var bakaUser in masterList)
                 {
-                    User? localUser = Users.FirstOrDefault(u => u.Id == bakaUser.Id);
+                    LocalUser? localUser = Users.FirstOrDefault(u => u.Id == bakaUser.Id);
                     if (localUser == null) continue;
                     IEnumerable<Change> changes = CompareService.GetDifferences(oldUser: localUser, newUser: bakaUser);
                     if (changes.Any())

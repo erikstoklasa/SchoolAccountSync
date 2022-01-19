@@ -3,7 +3,7 @@ using System.Text;
 
 namespace SchoolAccountSync.Models
 {
-    public class User
+    public class LocalUser
     {
         public string Id { get; set; }
         [MaxLength(30)]

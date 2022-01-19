@@ -12,9 +12,9 @@ namespace SchoolAccountSync.Services
         {
             this.configuration = configuration;
         }
-        public async Task<IEnumerable<User>> GetUsers()
+        public async Task<IEnumerable<LocalUser>> GetUsers()
         {
-            List<User> users = new();
+            List<LocalUser> users = new();
             await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
             await con.OpenAsync();
 
@@ -24,7 +24,7 @@ namespace SchoolAccountSync.Services
             {
                 while (await reader.ReadAsync())
                 {
-                    User user = new()
+                    LocalUser user = new()
                     {
                         Id = reader.GetString(0),
                         FirstName = reader.GetString(1),
@@ -45,11 +45,11 @@ namespace SchoolAccountSync.Services
             return users;
         }
 
-        public async Task<User> GetUser(string id)
+        public async Task<LocalUser> GetUser(string id)
         {
             await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
             await con.OpenAsync();
-            User user;
+            LocalUser user;
             await using (NpgsqlCommand cmd = new("SELECT id, first_name, last_name, birthdate, class, school_email," +
                 "personal_email, rfid, user_type, status, locker_number, temp_password FROM users WHERE id = $1", con)
             {
@@ -81,7 +81,7 @@ namespace SchoolAccountSync.Services
             }
             return user;
         }
-        public async Task<int> UpdateUser(User user)
+        public async Task<int> UpdateUser(LocalUser user)
         {
             await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
             await con.OpenAsync();
@@ -106,7 +106,7 @@ namespace SchoolAccountSync.Services
             };
             return await cmd.ExecuteNonQueryAsync();
         }
-        public async Task<int> AddUser(User user)
+        public async Task<int> AddUser(LocalUser user)
         {
             await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
             await con.OpenAsync();

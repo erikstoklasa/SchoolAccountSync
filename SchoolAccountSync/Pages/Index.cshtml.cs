@@ -9,13 +9,13 @@ namespace SchoolAccountSync.Pages
         private readonly ILogger<IndexModel> _logger;
         private readonly LocalUserService localUserService;
 
-        public IEnumerable<User> Users { get; set; }
+        public IEnumerable<LocalUser> Users { get; set; }
 
         public IndexModel(ILogger<IndexModel> logger, LocalUserService localUserService)
         {
             _logger = logger;
             this.localUserService = localUserService;
-            Users = new List<User>();
+            Users = new List<LocalUser>();
         }
 
         public async Task OnGetAsync()

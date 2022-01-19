@@ -10,13 +10,13 @@ namespace SchoolAccountSync.Pages
         private readonly LocalUserService localUserService;
 
         [BindProperty]
-        public User User { get; set; }
+        public LocalUser User { get; set; }
         public string SuccessMessage { get; set; }
 
         public UserModel(LocalUserService localUserService)
         {
             this.localUserService = localUserService;
-            User = new User();
+            User = new LocalUser();
             SuccessMessage = "";
         }
         public async Task OnGet(string id)

@@ -4,11 +4,11 @@ using System.Data.SqlClient;
 
 namespace SchoolAccountSync.Services
 {
-    public class BakalariService
+    public class BakalariUserService
     {
         private readonly IConfiguration configuration;
 
-        public BakalariService(IConfiguration configuration)
+        public BakalariUserService(IConfiguration configuration)
         {
             this.configuration = configuration;
         }
@@ -17,9 +17,9 @@ namespace SchoolAccountSync.Services
         /// </summary>
         /// <returns>List of students</returns>
         /// <exception cref="SqlException">Thrown when connection could not be established.</exception>
-        public async Task<ICollection<User>> GetStudents()
+        public async Task<ICollection<LocalUser>> GetStudents()
         {
-            List<User> users = new();
+            List<LocalUser> users = new();
             using SqlConnection con = new(configuration["BakalariService:DevelopmentConn"]);
             con.Open();
             using SqlCommand command = new("SELECT [INTERN_KOD],[JMENO],[PRIJMENI],[DATUM_NAR],[E_MAIL],[DELETED_RC],[SKRINKA_C],[TRIDA] FROM zaci ORDER BY [PRIJMENI] ASC;", con);
@@ -27,7 +27,7 @@ namespace SchoolAccountSync.Services
             while (await reader.ReadAsync())
             {
                 DateOnly date = DateOnly.ParseExact(reader.GetString(3).Replace(" ", ""), "d.M.yyyy");
-                User user = new()
+                LocalUser user = new()
                 {
                     Id = reader.GetString(0).Trim(),
                     FirstName = reader.GetString(1).Trim(),
@@ -39,7 +39,7 @@ namespace SchoolAccountSync.Services
                     LockerNumber = reader.GetString(6).Replace(" ", ""),
                     Class = reader.GetString(7).Trim(),
                 };
-                user.SchoolEmail = User.GenerateSchoolEmail(user.FirstName, user.LastName, user.UserType);
+                user.SchoolEmail = LocalUser.GenerateSchoolEmail(user.FirstName, user.LastName, user.UserType);
                 users.Add(user);
             }
             return users;
@@ -49,7 +49,7 @@ namespace SchoolAccountSync.Services
         /// </summary>
         /// <returns>List of students</returns>
         /// <exception cref="SqlException">Thrown when connection could not be established.</exception>
-        public async Task<User> GetStudent(string id)
+        public async Task<LocalUser> GetStudent(string id)
         {
 
             using SqlConnection con = new(configuration["BakalariService:DevelopmentConn"]);
@@ -60,7 +60,7 @@ namespace SchoolAccountSync.Services
             using SqlDataReader reader = await command.ExecuteReaderAsync();
             await reader.ReadAsync();
             DateOnly date = DateOnly.ParseExact(reader.GetString(3).Replace(" ", ""), "d.M.yyyy");
-            User user = new()
+            LocalUser user = new()
             {
                 Id = reader.GetString(0).Trim(),
                 FirstName = reader.GetString(1).Trim(),
@@ -72,7 +72,7 @@ namespace SchoolAccountSync.Services
                 LockerNumber = reader.GetString(6).Replace(" ", ""),
                 Class = reader.GetString(7).Trim(),
             };
-            user.SchoolEmail = User.GenerateSchoolEmail(user.FirstName, user.LastName, user.UserType);
+            user.SchoolEmail = LocalUser.GenerateSchoolEmail(user.FirstName, user.LastName, user.UserType);
             return user;
         }
     }

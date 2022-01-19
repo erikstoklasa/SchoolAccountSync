@@ -4,7 +4,7 @@ namespace SchoolAccountSync.Services
 {
     public static class CompareService
     {
-        public static IEnumerable<Change> GetDifferences(User oldUser,User newUser)
+        public static IEnumerable<Change> GetDifferences(LocalUser oldUser,LocalUser newUser)
         {
             List<Change> changes = new();
             if (ReferenceEquals(oldUser, newUser)) return changes;
