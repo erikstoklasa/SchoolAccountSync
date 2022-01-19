@@ -18,6 +18,15 @@ body {
     margin-bottom: 60px;
 }
 
+.button-row {
+    display: flex;
+    margin-bottom: 1rem;
+}
+
+.button-row a{
+    margin-right: 1rem;
+}
+
 .user-list {
     display: flex;
     flex-wrap: wrap;
@@ -74,3 +83,31 @@ body {
     .user-profile-info span {
         flex: 1;
     }
+
+.change-item {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+    .change-item div {
+        display: flex;
+        flex-direction: column;
+        margin-right: 1rem;
+    }
+
+.change-detail-info .change-new {
+    color: #18AC00;
+}
+
+.change-detail-info .change-old {
+    color: #FF0000;
+}
+
+.change-detail-heading {
+    font-weight: 500;
+}
+
+.change-detail-subheading {
+    color: #555555;
+}
