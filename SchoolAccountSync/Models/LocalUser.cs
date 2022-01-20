@@ -20,7 +20,8 @@ namespace SchoolAccountSync.Models
         [EmailAddress]
         [MaxLength(35)]
         public string? PersonalEmail { get; set; }
-        public int Rfid { get; set; }
+        [MaxLength(8)]
+        public string? Rfid { get; set; }
         [MaxLength(4)]
         public string LockerNumber { get; set; }
         [MaxLength(20)]
