@@ -16,7 +16,24 @@
         @Model.SuccessMessage
     </div>
 }
-    <h2>Změny (@Model.UsersWithChanges.Count)</h2>
+<h2>Nové (@Model.UsersToAdd.Count)</h2>
+@if (Model.UsersToAdd.Any())
+{
+    @foreach (var user in Model.UsersToAdd)
+    {
+        <div class="change-item">
+            <div>
+                <span class="change-detail-heading">@user.FullName()</span>
+                <span class="change-detail-subheading">@user.Id</span>
+            </div>
+            <div class="change-detail-info">
+                <span>@user.Class</span>
+                <span>@user.SchoolEmail</span>
+            </div>
+        </div>
+    }
+}
+<h2>Změny (@Model.UsersWithChanges.Count)</h2>
 @if (Model.UsersWithChanges.Any())
 {
     @foreach (var (user, changes) in Model.UsersWithChanges)
@@ -35,7 +52,8 @@
             }
         </div>
     }
-    <div class="button-row">
-        <a class="button-primary" asp-page="/Sync/Bakalari" asp-page-handler="ConfirmChanges">Provést všechny změny</a>
-    </div>
+
 }
+<div class="button-row">
+    <a class="button-primary" asp-page="/Sync/Bakalari" asp-page-handler="ConfirmChanges">Provést všechny změny</a>
+</div>

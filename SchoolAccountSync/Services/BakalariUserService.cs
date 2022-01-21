@@ -17,9 +17,9 @@ namespace SchoolAccountSync.Services
         /// </summary>
         /// <returns>List of students</returns>
         /// <exception cref="SqlException">Thrown when connection could not be established.</exception>
-        public async Task<ICollection<LocalUser>> GetStudents()
+        public async Task<ICollection<BakalariUser>> GetStudents()
         {
-            List<LocalUser> users = new();
+            List<BakalariUser> users = new();
             using SqlConnection con = new(configuration["BakalariService:DevelopmentConn"]);
             con.Open();
             using SqlCommand command = new("SELECT [INTERN_KOD],[JMENO],[PRIJMENI],[DATUM_NAR],[E_MAIL],[DELETED_RC],[SKRINKA_C],[TRIDA] FROM zaci ORDER BY [PRIJMENI] ASC;", con);
@@ -27,7 +27,7 @@ namespace SchoolAccountSync.Services
             while (await reader.ReadAsync())
             {
                 DateOnly date = DateOnly.ParseExact(reader.GetString(3).Replace(" ", ""), "d.M.yyyy");
-                LocalUser user = new()
+                BakalariUser user = new()
                 {
                     Id = reader.GetString(0).Trim(),
                     FirstName = reader.GetString(1).Trim(),
@@ -39,7 +39,6 @@ namespace SchoolAccountSync.Services
                     LockerNumber = reader.GetString(6).Replace(" ", ""),
                     Class = reader.GetString(7).Trim(),
                 };
-                user.SchoolEmail = LocalUser.GenerateSchoolEmail(user.FirstName, user.LastName, user.UserType);
                 users.Add(user);
             }
             return users;
@@ -49,7 +48,7 @@ namespace SchoolAccountSync.Services
         /// </summary>
         /// <returns>List of students</returns>
         /// <exception cref="SqlException">Thrown when connection could not be established.</exception>
-        public async Task<LocalUser> GetStudent(string id)
+        public async Task<BakalariUser> GetStudent(string id)
         {
 
             using SqlConnection con = new(configuration["BakalariService:DevelopmentConn"]);
@@ -60,7 +59,7 @@ namespace SchoolAccountSync.Services
             using SqlDataReader reader = await command.ExecuteReaderAsync();
             await reader.ReadAsync();
             DateOnly date = DateOnly.ParseExact(reader.GetString(3).Replace(" ", ""), "d.M.yyyy");
-            LocalUser user = new()
+            BakalariUser user = new()
             {
                 Id = reader.GetString(0).Trim(),
                 FirstName = reader.GetString(1).Trim(),
@@ -72,7 +71,6 @@ namespace SchoolAccountSync.Services
                 LockerNumber = reader.GetString(6).Replace(" ", ""),
                 Class = reader.GetString(7).Trim(),
             };
-            user.SchoolEmail = LocalUser.GenerateSchoolEmail(user.FirstName, user.LastName, user.UserType);
             return user;
         }
     }
