@@ -111,3 +111,8 @@ body {
 .change-detail-subheading {
     color: #555555;
 }
+.icon {
+    width: 2rem;
+    height: 2rem;
+    margin: 0 0.3rem;
+}

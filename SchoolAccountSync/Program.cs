@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<BakalariUserService>();
 builder.Services.AddScoped<LocalUserService>();
+builder.Services.AddScoped<CopierService>();
 
 var app = builder.Build();
 
