@@ -1,0 +1,9 @@
+﻿@page
+@model SchoolAccountSync.Pages.Sync.RecoverDataFromCopiersModel
+@{
+}
+<h1>Načítání Rfid z existující db kopírek</h1>
+Rfid nebylo nalezeno u @Model.NumberOfNullRfids Rfid záznamů. Chcete se pokusit je našíst z databáze kopírek?
+<form method="post">
+    <input class="button-primary mt-2" type="submit" value="Pokračovat" />
+</form>

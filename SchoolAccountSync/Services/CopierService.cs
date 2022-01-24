@@ -133,6 +133,60 @@ namespace SchoolAccountSync.Services
 
             return user;
         }
+        public async Task<CopierUser?> GetUserByLogin(string login)
+        {
+            await using NpgsqlConnection con = new(configuration["CopiersDatabase:DevelopmentConn"]);
+            await con.OpenAsync();
+            CopierUser user;
+            NpgsqlCommand cmd = new("SELECT ext_id, name, surname, login, email, ou_id, name_ascii, surname_ascii, login_ascii, pass, id FROM users WHERE login = $1", con)
+            {
+                Parameters =
+                {
+                    new() { Value = login },
+                }
+            };
+            await using NpgsqlDataReader reader = await cmd.ExecuteReaderAsync();
+            await reader.ReadAsync();
+            if (!reader.IsOnRow) return null;
+            user = new()
+            {
+                ExtId = reader.GetString(0),
+                FirstName = reader.GetString(1),
+                LastName = reader.GetString(2),
+                Login = reader.GetString(3),
+                SchoolEmail = reader.GetString(4),
+                OuId = reader.GetInt64(5),
+                FirstNameAscii = reader.GetString(6),
+                LastNameAscii = reader.GetString(7),
+                LoginAscii = reader.GetString(8),
+                TempPassword = reader.IsDBNull(9) ? null : reader.GetString(9),
+                Id = reader.GetInt64(10),
+
+            };
+
+            long userId = reader.GetInt64(10);
+
+            cmd.Dispose();
+            reader.Close();
+
+            user.CopierCards = new List<CopierCard>();
+
+            await using NpgsqlCommand cmd2 = new("SELECT user_id, card FROM users_cards WHERE user_id = $1", con)
+            {
+                Parameters =
+                {
+                    new() { Value = userId},
+                }
+            };
+
+            await using NpgsqlDataReader reader2 = await cmd2.ExecuteReaderAsync();
+            while (await reader2.ReadAsync())
+            {
+                user.CopierCards.Add(new CopierCard() { UserId = reader2.GetInt64(0), CardId = reader2.GetString(1) });
+            }
+
+            return user;
+        }
         public async Task<int> DeleteUserWithCards(long internalId)
         {
             await using NpgsqlConnection con = new(configuration["CopiersDatabase:DevelopmentConn"]);
