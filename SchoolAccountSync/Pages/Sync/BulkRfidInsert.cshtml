@@ -1,0 +1,23 @@
+﻿@page
+@model SchoolAccountSync.Pages.Sync.BulkRfidInsertModel
+@{
+}
+<h2>Zbývá @Model.NumOfUsersWithoutRfid uživatelů bez Rfid</h2>
+@if (Model.SuccessMessage.Length > 0)
+{
+    <div class="alert alert-success my-1" role="alert">
+        @Model.SuccessMessage
+    </div>
+}
+<h3>@Model.localUser.FullName() - @Model.localUser.Class</h3>
+<div class="user-profile-info">
+    <span>Školní email: @Model.localUser.SchoolEmail</span>
+    <span>Osobní email: @Model.localUser.PersonalEmail</span>
+    <span>Datum narození: @Model.localUser.Birthdate.ToString("d. M. yyyy") (@Model.localUser.GetAge() let)</span>
+    <form method="post">
+        <input type="hidden" asp-for="localUser.Id" />
+        <label asp-for="localUser.Rfid">Rfid:</label>
+        <input class="mx-2" asp-for="localUser.Rfid" autofocus />
+        <input class="button-primary mt-2" type="submit" value="Uložit a přeskočit na dalšího uživatele" />
+    </form>
+</div>
