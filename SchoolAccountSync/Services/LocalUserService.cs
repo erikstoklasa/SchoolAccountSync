@@ -44,6 +44,136 @@ namespace SchoolAccountSync.Services
             }
             return users;
         }
+        public async Task<IEnumerable<LocalUser>> GetUsersByClass(string classFilter)
+        {
+            List<LocalUser> users = new();
+            if (string.IsNullOrWhiteSpace(classFilter))
+            {
+                return users;
+            }
+            await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
+            await con.OpenAsync();
+
+            await using (NpgsqlCommand cmd = new("SELECT id, first_name, last_name, birthdate, class, school_email," +
+                "personal_email, rfid, user_type, status, locker_number, temp_password FROM users WHERE class = $1 ORDER BY last_name ASC", con)
+            {
+                Parameters =
+                {
+                    new() { Value = classFilter },
+                }
+            }
+                )
+            await using (NpgsqlDataReader reader = await cmd.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    LocalUser user = new()
+                    {
+                        Id = reader.GetString(0),
+                        FirstName = reader.GetString(1),
+                        LastName = reader.GetString(2),
+                        Birthdate = reader.GetFieldValue<DateOnly>(3),
+                        Class = reader.GetString(4),
+                        SchoolEmail = reader.IsDBNull(5) ? null : reader.GetString(5),
+                        PersonalEmail = reader.IsDBNull(6) ? null : reader.GetString(6),
+                        Rfid = reader.IsDBNull(7) ? null : reader.GetString(7),
+                        UserType = (UserTypes)reader.GetValue(8),
+                        Status = (StatusTypes)reader.GetValue(9),
+                        LockerNumber = reader.GetString(10),
+                        TempPassword = reader.IsDBNull(11) ? null : reader.GetString(11)
+                    };
+                    users.Add(user);
+                }
+            }
+            return users;
+        }
+        public async Task<IEnumerable<LocalUser>> GetUsersByRfid(string rfidFilter)
+        {
+            List<LocalUser> users = new();
+            if (string.IsNullOrWhiteSpace(rfidFilter))
+            {
+                return users;
+            }
+            await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
+            await con.OpenAsync();
+
+            await using (NpgsqlCommand cmd = new("SELECT id, first_name, last_name, birthdate, class, school_email," +
+                "personal_email, rfid, user_type, status, locker_number, temp_password FROM users WHERE rfid = $1 ORDER BY last_name ASC", con)
+            {
+                Parameters =
+                {
+                    new() { Value = rfidFilter },
+                }
+            }
+                )
+            await using (NpgsqlDataReader reader = await cmd.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    LocalUser user = new()
+                    {
+                        Id = reader.GetString(0),
+                        FirstName = reader.GetString(1),
+                        LastName = reader.GetString(2),
+                        Birthdate = reader.GetFieldValue<DateOnly>(3),
+                        Class = reader.GetString(4),
+                        SchoolEmail = reader.IsDBNull(5) ? null : reader.GetString(5),
+                        PersonalEmail = reader.IsDBNull(6) ? null : reader.GetString(6),
+                        Rfid = reader.IsDBNull(7) ? null : reader.GetString(7),
+                        UserType = (UserTypes)reader.GetValue(8),
+                        Status = (StatusTypes)reader.GetValue(9),
+                        LockerNumber = reader.GetString(10),
+                        TempPassword = reader.IsDBNull(11) ? null : reader.GetString(11)
+                    };
+                    users.Add(user);
+                }
+            }
+            return users;
+        }
+        public async Task<IEnumerable<LocalUser>> GetUsersByName(string nameFilter)
+        {
+            List<LocalUser> users = new();
+            if (string.IsNullOrWhiteSpace(nameFilter))
+            {
+                return users;
+            }
+            await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
+            await con.OpenAsync();
+
+            await using (NpgsqlCommand cmd = new("SELECT id, first_name, last_name, birthdate, class, school_email," +
+                "personal_email, rfid, user_type, status, locker_number, temp_password FROM users " +
+                "WHERE LOWER(first_name) LIKE '%' || $1 || '%' OR LOWER(last_name) LIKE '%' || $1 || '%' ORDER BY last_name ASC", con)
+            {
+                Parameters =
+                {
+                    new() { Value = nameFilter.ToLower() },
+                }
+            }
+                )
+            await using (NpgsqlDataReader reader = await cmd.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    LocalUser user = new()
+                    {
+                        Id = reader.GetString(0),
+                        FirstName = reader.GetString(1),
+                        LastName = reader.GetString(2),
+                        Birthdate = reader.GetFieldValue<DateOnly>(3),
+                        Class = reader.GetString(4),
+                        SchoolEmail = reader.IsDBNull(5) ? null : reader.GetString(5),
+                        PersonalEmail = reader.IsDBNull(6) ? null : reader.GetString(6),
+                        Rfid = reader.IsDBNull(7) ? null : reader.GetString(7),
+                        UserType = (UserTypes)reader.GetValue(8),
+                        Status = (StatusTypes)reader.GetValue(9),
+                        LockerNumber = reader.GetString(10),
+                        TempPassword = reader.IsDBNull(11) ? null : reader.GetString(11)
+                    };
+                    users.Add(user);
+                }
+            }
+            return users;
+        }
 
         public async Task<LocalUser> GetUser(string id)
         {

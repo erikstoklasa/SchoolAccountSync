@@ -16,7 +16,6 @@ namespace SchoolAccountSync.Pages
         {
             this.localUserService = localUserService;
         }
-
         public async Task<FileResult> OnGetCsvAsync()
         {
             StringBuilder sb = new();

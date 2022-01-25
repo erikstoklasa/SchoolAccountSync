@@ -38,7 +38,7 @@ namespace SchoolAccountSync.Pages
                 return Page();
             }
             IsSyncedWithCopiers = CompareService.Equals(copierUser, User);
-            if (!copierUser.CopierCards.Any() || copierUser.CopierCards.Count > 1)
+            if (copierUser.CopierCards.Count == 0 || copierUser.CopierCards.Count > 1)
             {
                 IsSyncedWithCopiers = false;
             }
