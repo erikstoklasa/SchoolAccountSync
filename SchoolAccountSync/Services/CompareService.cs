@@ -25,7 +25,7 @@ namespace SchoolAccountSync.Services
 
             return changes;
         }
-        public static bool Equals(CopierUser copierUser, LocalUser localUser)
+        public static bool IsSynced(CopierUser copierUser, LocalUser localUser)
         {
             if (localUser.Id != copierUser.ExtId) return false;
             if (localUser.FirstName != copierUser.FirstName) return false;

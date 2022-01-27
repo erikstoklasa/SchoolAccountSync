@@ -11,7 +11,7 @@ namespace SchoolAccountSync.Pages
         private readonly CopierService copierService;
 
         [BindProperty]
-        public LocalUser User { get; set; }
+        public LocalUser? User { get; set; }
         public string SuccessMessage { get; set; }
         public string ErrorMessage { get; set; }
         public bool IsSyncedWithCopiers { get; set; }
@@ -20,7 +20,6 @@ namespace SchoolAccountSync.Pages
         {
             this.localUserService = localUserService;
             this.copierService = copierService;
-            User = new LocalUser();
             SuccessMessage = "";
             ErrorMessage = "";
         }
@@ -31,13 +30,14 @@ namespace SchoolAccountSync.Pages
                 return NotFound();
             }
             User = await localUserService.GetUser(id);
+            if (User == null) return NotFound();
             CopierUser? copierUser = await copierService.GetUser(id);
             if (copierUser == null)
             {
                 IsSyncedWithCopiers = false;
                 return Page();
             }
-            IsSyncedWithCopiers = CompareService.Equals(copierUser, User);
+            IsSyncedWithCopiers = CompareService.IsSynced(copierUser, User);
             if (copierUser.CopierCards.Count == 0 || copierUser.CopierCards.Count > 1)
             {
                 IsSyncedWithCopiers = false;
@@ -65,10 +65,10 @@ namespace SchoolAccountSync.Pages
             if (User.Rfid == null)
             {
                 ErrorMessage = "Uživatel musí mít Rfid";
-                return RedirectToPage("./User", new { User.Id , ErrorMessage });
+                return RedirectToPage("./User", new { User.Id, ErrorMessage });
             }
             CopierUser? copierUser = await copierService.GetUser(User.Id);
-            while(copierUser != null)
+            while (copierUser != null)
             {
                 await copierService.DeleteUserWithCards(copierUser.Id);
                 copierUser = await copierService.GetUser(User.Id);

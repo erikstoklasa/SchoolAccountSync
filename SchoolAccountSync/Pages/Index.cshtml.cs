@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Npgsql;
 using SchoolAccountSync.Models;
 using SchoolAccountSync.Services;
 
@@ -16,6 +17,7 @@ namespace SchoolAccountSync.Pages
             _logger = logger;
             this.localUserService = localUserService;
             Users = new List<LocalUser>();
+            ErrorMessage = "";
         }
 
         [BindProperty(SupportsGet = true)]
@@ -24,12 +26,13 @@ namespace SchoolAccountSync.Pages
         public string? RfidFilter { get; set; }
         [BindProperty(SupportsGet = true)]
         public string? NameFilter { get; set; }
+        public string ErrorMessage { get; set; }
 
         public async Task OnGetAsync()
         {
             if (NameFilter != null)
             {
-                Users = await localUserService.GetUsersByName(NameFilter);
+                Users = (await localUserService.GetUsers()).Where(u => u.FullName().ToLower().Contains(NameFilter.ToLower()));
             }
             else if (RfidFilter != null)
             {
@@ -41,7 +44,14 @@ namespace SchoolAccountSync.Pages
             }
             else
             {
-                Users = await localUserService.GetUsers();
+                try
+                {
+                    Users = await localUserService.GetUsers();
+                }
+                catch (NpgsqlException ex)
+                {
+                    ErrorMessage = "Connection to the PostgreSQL server could not be established.";
+                }
             }
         }
     }
