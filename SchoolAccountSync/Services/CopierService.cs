@@ -11,18 +11,21 @@ namespace SchoolAccountSync.Services
         {
             this.configuration = configuration;
         }
+        /// <summary>
+        /// Adds user with its cards
+        /// </summary>
+        /// <param name="user"></param>
+        /// <exception cref="ArgumentException">Thrown when school email is null</exception>
         public async Task AddUser(LocalUser user)
         {
-            int ouId = user.UserType switch
-            {
-                UserTypes.Teacher => 1,
-                UserTypes.Student => 2,
-                _ => 2,
-            };
-            string login = "";
+            string login;
             if (user.SchoolEmail != null)
             {
-                login = user.SchoolEmail.Split("@")[0];
+                login = CopierUser.GenerateLogin(user.SchoolEmail);
+            }
+            else
+            {
+                throw new ArgumentException("School email can not be null", nameof(user.SchoolEmail));
             }
             await using NpgsqlConnection con = new(configuration["CopiersDatabase:DevelopmentConn"]);
             NpgsqlTransaction trans = null;
@@ -41,8 +44,8 @@ namespace SchoolAccountSync.Services
                     new() { Value = user.FirstName },
                     new() { Value = user.LastName },
                     new() { Value = user.SchoolEmail != null ? user.SchoolEmail : DBNull.Value },
-                    new() { Value = ouId },
-                    new() { Value = login},
+                    new() { Value = CopierUser.GenerateOuId(user.UserType) },
+                    new() { Value = login },
                     new() { Value = user.FirstName },
                     new() { Value = user.LastName },
                     new() { Value = user.Id },
@@ -59,7 +62,12 @@ namespace SchoolAccountSync.Services
                 },
                     Transaction = trans,
                 };
-                long id = (long)await cmd2.ExecuteScalarAsync();
+                long? id = (long?)await cmd2.ExecuteScalarAsync();
+
+                if (id == null)
+                {
+                    throw new Exception("Added user was unexpectedly deleted");
+                }
 
                 await using NpgsqlCommand cmd3 = new("INSERT INTO users_cards (user_id,card) VALUES ($1,$2)", con)
                 {
@@ -77,6 +85,12 @@ namespace SchoolAccountSync.Services
             catch (NpgsqlException)
             {
                 trans.Rollback();
+                throw;
+            }
+            catch (Exception)
+            {
+                trans.Rollback();
+                throw;
             }
         }
         public async Task<CopierUser?> GetUser(string externalId)
@@ -96,7 +110,7 @@ namespace SchoolAccountSync.Services
             if (!reader.IsOnRow) return null;
             user = new()
             {
-                ExtId = reader.GetString(0),
+                ExtId = reader.IsDBNull(0) ? null : reader.GetString(0),
                 FirstName = reader.GetString(1),
                 LastName = reader.GetString(2),
                 Login = reader.GetString(3),
@@ -150,7 +164,7 @@ namespace SchoolAccountSync.Services
             if (!reader.IsOnRow) return null;
             user = new()
             {
-                ExtId = reader.GetString(0),
+                ExtId = reader.IsDBNull(0) ? null : reader.GetString(0),
                 FirstName = reader.GetString(1),
                 LastName = reader.GetString(2),
                 Login = reader.GetString(3),
@@ -161,7 +175,6 @@ namespace SchoolAccountSync.Services
                 LoginAscii = reader.GetString(8),
                 TempPassword = reader.IsDBNull(9) ? null : reader.GetString(9),
                 Id = reader.GetInt64(10),
-
             };
 
             long userId = reader.GetInt64(10);
@@ -187,6 +200,30 @@ namespace SchoolAccountSync.Services
 
             return user;
         }
+        public async Task<int> UpdateUser(CopierUser user)
+        {
+            await using NpgsqlConnection con = new(configuration["CopiersDatabase:DevelopmentConn"]);
+            await con.OpenAsync();
+            await using NpgsqlCommand cmd = new("UPDATE users SET ext_id = $1, name = $2, surname = $3, login = $4, email = $5, " +
+                "ou_id = $6, name_ascii = $7, surname_ascii = $8, login_ascii = $9, pass = $10 WHERE id = $11", con)
+            {
+                Parameters =
+                {
+                    new() { Value = user.ExtId != null ? user.ExtId : DBNull.Value },
+                    new() { Value = user.FirstName },
+                    new() { Value = user.LastName },
+                    new() { Value = user.Login },
+                    new() { Value = user.SchoolEmail },
+                    new() { Value = user.OuId != null ? user.OuId : DBNull.Value },
+                    new() { Value = user.FirstNameAscii != null ? user.FirstNameAscii : DBNull.Value },
+                    new() { Value = user.LastNameAscii != null ? user.LastNameAscii : DBNull.Value },
+                    new() { Value = user.LoginAscii },
+                    new() { Value = user.TempPassword != null ? user.TempPassword : DBNull.Value },
+                    new() { Value = user.Id },
+                }
+            };
+            return await cmd.ExecuteNonQueryAsync();
+        }
         public async Task<int> DeleteUserWithCards(long internalId)
         {
             await using NpgsqlConnection con = new(configuration["CopiersDatabase:DevelopmentConn"]);
@@ -210,6 +247,34 @@ namespace SchoolAccountSync.Services
             };
 
             return await cmd2.ExecuteNonQueryAsync();
+        }
+        public async Task<int> AddCard(CopierCard copierCard)
+        {
+            await using NpgsqlConnection con = new(configuration["CopiersDatabase:DevelopmentConn"]);
+            await con.OpenAsync();
+            await using NpgsqlCommand cmd = new("INSERT INTO users_cards (user_id,card) VALUES ($1,$2)", con)
+            {
+                Parameters =
+                {
+                    new() { Value = copierCard.UserId},
+                    new() { Value = copierCard.CardId },
+                },
+            };
+            return await cmd.ExecuteNonQueryAsync();
+        }
+
+        public async Task<int> DeleteCards(long userInternalId)
+        {
+            await using NpgsqlConnection con = new(configuration["CopiersDatabase:DevelopmentConn"]);
+            await con.OpenAsync();
+            await using NpgsqlCommand cmd = new("DELETE FROM users_cards WHERE user_id = $1", con)
+            {
+                Parameters =
+                {
+                    new() { Value = userInternalId },
+                }
+            };
+            return await cmd.ExecuteNonQueryAsync();
         }
 
     }

@@ -12,12 +12,16 @@ namespace SchoolAccountSync.Services
         {
             this.configuration = configuration;
         }
+        /// <summary>
+        /// Gets all local users
+        /// </summary>
+        /// <returns>List of local users</returns>
+        /// <exception cref="NpgsqlException">Thrown when connection could not be established.</exception>
         public async Task<IEnumerable<LocalUser>> GetUsers()
         {
             List<LocalUser> users = new();
             await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
             await con.OpenAsync();
-
             await using (NpgsqlCommand cmd = new("SELECT id, first_name, last_name, birthdate, class, school_email," +
                 "personal_email, rfid, user_type, status, locker_number, temp_password FROM users ORDER BY last_name ASC", con))
             await using (NpgsqlDataReader reader = await cmd.ExecuteReaderAsync())
@@ -130,52 +134,8 @@ namespace SchoolAccountSync.Services
             }
             return users;
         }
-        public async Task<IEnumerable<LocalUser>> GetUsersByName(string nameFilter)
-        {
-            List<LocalUser> users = new();
-            if (string.IsNullOrWhiteSpace(nameFilter))
-            {
-                return users;
-            }
-            await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
-            await con.OpenAsync();
 
-            await using (NpgsqlCommand cmd = new("SELECT id, first_name, last_name, birthdate, class, school_email," +
-                "personal_email, rfid, user_type, status, locker_number, temp_password FROM users " +
-                "WHERE LOWER(first_name) LIKE '%' || $1 || '%' OR LOWER(last_name) LIKE '%' || $1 || '%' ORDER BY last_name ASC", con)
-            {
-                Parameters =
-                {
-                    new() { Value = nameFilter.ToLower() },
-                }
-            }
-                )
-            await using (NpgsqlDataReader reader = await cmd.ExecuteReaderAsync())
-            {
-                while (await reader.ReadAsync())
-                {
-                    LocalUser user = new()
-                    {
-                        Id = reader.GetString(0),
-                        FirstName = reader.GetString(1),
-                        LastName = reader.GetString(2),
-                        Birthdate = reader.GetFieldValue<DateOnly>(3),
-                        Class = reader.GetString(4),
-                        SchoolEmail = reader.IsDBNull(5) ? null : reader.GetString(5),
-                        PersonalEmail = reader.IsDBNull(6) ? null : reader.GetString(6),
-                        Rfid = reader.IsDBNull(7) ? null : reader.GetString(7),
-                        UserType = (UserTypes)reader.GetValue(8),
-                        Status = (StatusTypes)reader.GetValue(9),
-                        LockerNumber = reader.GetString(10),
-                        TempPassword = reader.IsDBNull(11) ? null : reader.GetString(11)
-                    };
-                    users.Add(user);
-                }
-            }
-            return users;
-        }
-
-        public async Task<LocalUser> GetUser(string id)
+        public async Task<LocalUser?> GetUser(string id)
         {
             await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
             await con.OpenAsync();
@@ -191,7 +151,7 @@ namespace SchoolAccountSync.Services
             await using (NpgsqlDataReader reader = await cmd.ExecuteReaderAsync())
             {
                 await reader.ReadAsync();
-
+                if (!reader.IsOnRow) return null;
                 user = new()
                 {
                     Id = reader.GetString(0),
