@@ -1,0 +1,20 @@
+﻿@page
+@model SchoolAccountSync.Pages.Sync.CopiersModel
+@{
+    ViewData["Title"] = "Kopírky synchronizace";
+}
+<h1>Kopírky synchronizace</h1>
+<h2>Synchronizované (@Model.NumOfSyncedUsers)</h2>
+<h2>Nesynchronizované (@Model.NotSyncedUsers.Count)</h2>
+@foreach(var u in @Model.NotSyncedUsers)
+{
+    <span>@u</span><br />
+}
+<p>Těmto uživatelům bude založen účet a přiřazen RFID čip</p>
+<form method="post" asp-page-handler="ConfirmSync">
+    <input class="button-primary mt-2" type="submit" value="Synchronizovat" />
+</form>
+<h2>Zatím není možné synchronizovat (@Model.NumOfUsersNotAbleToSync)</h2>
+<p>Tyto uživatelé zatím nemají nahraný RFID nebo školní emailovou adresu. Tyto nástroje vám mohou usnadnit práci:</p>
+<a asp-page="/Sync/RecoverDataFromCopiers">Odkaz na automatické obnovení rfid</a><br />
+<a asp-page="/Sync/BulkRfidInsert">Odkaz na manuální vkládání rfid</a>
