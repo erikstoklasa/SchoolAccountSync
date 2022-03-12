@@ -17,6 +17,7 @@
     </div>
 }
 <h2>Nové (@Model.UsersToAdd.Count)</h2>
+<p>Těmto uživatelům se vygeneruje jednorázové heslo a školní email</p>
 @if (Model.UsersToAdd.Any())
 {
     @foreach (var user in Model.UsersToAdd)
@@ -55,5 +56,5 @@
 
 }
 <div class="button-row">
-    <a class="button-primary" asp-page="/Sync/Bakalari" asp-page-handler="ConfirmChanges">Provést všechny změny</a>
+    <a class="button-primary" asp-page="/Sync/Bakalari" asp-page-handler="ConfirmChanges">Synchronizovat</a>
 </div>

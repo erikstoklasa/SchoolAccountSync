@@ -26,6 +26,7 @@ namespace SchoolAccountSync.Pages
         public string? RfidFilter { get; set; }
         [BindProperty(SupportsGet = true)]
         public string? NameFilter { get; set; }
+        [BindProperty(SupportsGet = true)]
         public string ErrorMessage { get; set; }
 
         public async Task OnGetAsync()
