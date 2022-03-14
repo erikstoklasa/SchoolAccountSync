@@ -16,7 +16,7 @@
             {
                 throw new ArgumentException("Argument can not be null", nameof(localUser.SchoolEmail));
             }
-            Login = GenerateLogin(localUser.SchoolEmail);
+            Login = LocalUser.GenerateLogin(localUser.SchoolEmail);
             SchoolEmail = localUser.SchoolEmail;
             OuId = GenerateOuId(localUser.UserType);
             FirstNameAscii = LocalUser.RemoveDiacritic(localUser.FirstName);
@@ -46,23 +46,6 @@
             UserTypes.Student => 2,
             _ => 2,
         };
-        /// <summary>
-        /// Gets the login from the username part of the email string
-        /// </summary>
-        /// <param name="schoolEmail"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException">Thrown when provided email is not valid</exception>
-        public static string GenerateLogin(string schoolEmail)
-        {
-            string[] splitString = schoolEmail.Split("@");
-            if (splitString.Length > 1)
-            {
-                return splitString[0];
-            }
-            else
-            {
-                throw new ArgumentException("Provided string did not contain an @ symbol", nameof(schoolEmail));
-            }
-        }
+
     }
 }

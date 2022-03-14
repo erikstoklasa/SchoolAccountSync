@@ -42,7 +42,15 @@ namespace SchoolAccountSync.Models
             }
             return age;
         }
-        public static string GenerateSchoolEmail(string firstName, string lastName, UserTypes userType)
+        /// <summary>
+        /// Generates the school email
+        /// </summary>
+        /// <param name="firstName">First name</param>
+        /// <param name="lastName">Last name</param>
+        /// <param name="userType">User type</param>
+        /// <param name="duplicateString">Used for conflicting school emails</param>
+        /// <returns>Valid school email</returns>
+        public static string GenerateSchoolEmail(string firstName, string lastName, UserTypes userType, IEnumerable<LocalUser> localUsers)
         {
             if (userType == UserTypes.Student)
             {
@@ -56,7 +64,26 @@ namespace SchoolAccountSync.Models
                 {
                     firstNameMaxLength = lastName.Length;
                 }
-                return RemoveDiacritic("x" + lastName[..lastNameMaxLength].ToLower() + firstName[..firstNameMaxLength].ToLower()) + "01@gjk.cz";
+                string output = "x" + lastName[..lastNameMaxLength].ToLower() + firstName[..firstNameMaxLength].ToLower() + "0";
+                int differentiatorIndex = 1;
+                while (localUsers.Any(u =>
+                {
+                    if (u.SchoolEmail == null) return false;
+                    try
+                    {
+                        return GenerateLogin(u.SchoolEmail) == output + differentiatorIndex;
+                    }
+                    catch (ArgumentException)
+                    {
+                        return false;
+                    }
+                }))
+                {
+                    differentiatorIndex++;
+                }
+                output += differentiatorIndex;
+                output += "@gjk.cz";
+                return RemoveDiacritic(output);
             }
             else
             {
@@ -69,19 +96,25 @@ namespace SchoolAccountSync.Models
             Dictionary<char, char> letterPairs = new();
             letterPairs.Add('á', 'a');
             letterPairs.Add('č', 'c');
+            letterPairs.Add('Č', 'C');
             letterPairs.Add('ď', 'd');
             letterPairs.Add('é', 'e');
             letterPairs.Add('ě', 'e');
             letterPairs.Add('í', 'i');
             letterPairs.Add('ň', 'n');
+            letterPairs.Add('Ň', 'N');
             letterPairs.Add('ó', 'o');
             letterPairs.Add('ř', 'r');
+            letterPairs.Add('Ř', 'R');
             letterPairs.Add('š', 's');
+            letterPairs.Add('Š', 's');
             letterPairs.Add('ť', 't');
+            letterPairs.Add('Ť', 'T');
             letterPairs.Add('ú', 'u');
             letterPairs.Add('ů', 'u');
             letterPairs.Add('ý', 'y');
             letterPairs.Add('ž', 'z');
+            letterPairs.Add('Ž', 'Z');
             letterPairs.Add('ö', 'o');
             letterPairs.Add('ü', 'u');
             letterPairs.Add('ß', 's');
@@ -106,6 +139,37 @@ namespace SchoolAccountSync.Models
                 }
             }
             return sb.ToString();
+        }
+        /// <summary>
+        /// Gets the login from the username part of the email string
+        /// </summary>
+        /// <param name="schoolEmail"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">Thrown when provided email is not valid</exception>
+        public static string GenerateLogin(string schoolEmail)
+        {
+            string[] splitString = schoolEmail.Split("@");
+            if (splitString.Length > 1)
+            {
+                return splitString[0];
+            }
+            else
+            {
+                throw new ArgumentException("Provided string did not contain an @ symbol", nameof(schoolEmail));
+            }
+        }
+        public static string GenerateTempPassword()
+        {
+            Random random = new();
+            char[] letters = new char[] { 'a','b','c','d','e','f','g','h','i','j','k','l','m','p','q','r','s','t','u','v','w','x','y','z',
+                '1','2','3','4','5','6','7','8','9','0'
+            };
+            string output = "";
+            for (int i = 0; i < 8; i++)
+            {
+                output += letters[random.Next(letters.Length)];
+            }
+            return output;
         }
 
     }

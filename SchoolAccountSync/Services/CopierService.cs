@@ -21,7 +21,7 @@ namespace SchoolAccountSync.Services
             string login;
             if (user.SchoolEmail != null)
             {
-                login = CopierUser.GenerateLogin(user.SchoolEmail);
+                login = LocalUser.GenerateLogin(user.SchoolEmail);
             }
             else
             {

@@ -30,6 +30,9 @@ namespace SchoolAccountSync.Services
             if (localUser.Id != copierUser.ExtId) return false;
             if (localUser.FirstName != copierUser.FirstName) return false;
             if (localUser.LastName != copierUser.LastName) return false;
+            if (copierUser.FirstNameAscii == null) return false;
+            if (copierUser.LastNameAscii == null) return false;
+            if (copierUser.LoginAscii == null) return false;
             if (LocalUser.RemoveDiacritic(localUser.FirstName) != copierUser.FirstNameAscii) return false;
             if (LocalUser.RemoveDiacritic(localUser.LastName) != copierUser.LastNameAscii) return false;
             if (localUser.TempPassword != copierUser.TempPassword) return false;
@@ -52,6 +55,9 @@ namespace SchoolAccountSync.Services
                 default:
                     return false;
             }
+
+            if (copierUser.CopierCards == null || copierUser.CopierCards.Count != 1) return false;
+            if (copierUser.CopierCards[0].CardId != localUser.Rfid) return false;
 
             return true;
         }

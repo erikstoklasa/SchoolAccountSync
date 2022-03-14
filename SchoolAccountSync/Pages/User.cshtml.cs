@@ -9,17 +9,27 @@ namespace SchoolAccountSync.Pages
     {
         private readonly LocalUserService localUserService;
         private readonly CopierService copierService;
+        private readonly LibraryService libraryService;
+        private readonly SyncService syncService;
 
         [BindProperty]
         public LocalUser? User { get; set; }
+        [BindProperty(SupportsGet = true)]
         public string SuccessMessage { get; set; }
+        [BindProperty(SupportsGet = true)]
         public string ErrorMessage { get; set; }
         public bool IsSyncedWithCopiers { get; set; }
+        public LibraryUser? LibraryUser { get; set; }
 
-        public UserModel(LocalUserService localUserService, CopierService copierService)
+        public UserModel(LocalUserService localUserService,
+                         CopierService copierService,
+                         LibraryService libraryService,
+                         SyncService syncService)
         {
             this.localUserService = localUserService;
             this.copierService = copierService;
+            this.libraryService = libraryService;
+            this.syncService = syncService;
             SuccessMessage = "";
             ErrorMessage = "";
         }
@@ -31,6 +41,7 @@ namespace SchoolAccountSync.Pages
             }
             User = await localUserService.GetUser(id);
             if (User == null) return NotFound();
+
             CopierUser? copierUser = await copierService.GetUser(id);
             if (copierUser == null)
             {
@@ -38,10 +49,6 @@ namespace SchoolAccountSync.Pages
                 return Page();
             }
             IsSyncedWithCopiers = CompareService.IsSynced(copierUser, User);
-            if (copierUser.CopierCards.Count == 0 || copierUser.CopierCards.Count > 1)
-            {
-                IsSyncedWithCopiers = false;
-            }
             return Page();
 
         }
@@ -56,24 +63,22 @@ namespace SchoolAccountSync.Pages
         }
         public async Task<IActionResult> OnPostSyncToCopiersAsync()
         {
-            if (User.Id == null)
+            if (User?.Id == null)
             {
-                ErrorMessage = "Uživatel musí mít ID";
-                return RedirectToPage("./Index");
+                ErrorMessage = "Uživatel musí mít ID, Error: ID10T";
+                return RedirectToPage("./Index", new { ErrorMessage });
             }
             User = await localUserService.GetUser(User.Id);
-            if (User.Rfid == null)
+            if (User == null) return NotFound();
+            try
             {
-                ErrorMessage = "Uživatel musí mít Rfid";
+                await syncService.SyncLocalUserWithCopiers(User);
+            }
+            catch (ArgumentException)
+            {
+                ErrorMessage = "Uživatel musí mít Rfid a validní školní email";
                 return RedirectToPage("./User", new { User.Id, ErrorMessage });
             }
-            CopierUser? copierUser = await copierService.GetUser(User.Id);
-            while (copierUser != null)
-            {
-                await copierService.DeleteUserWithCards(copierUser.Id);
-                copierUser = await copierService.GetUser(User.Id);
-            }
-            await copierService.AddUser(User);
             return RedirectToPage("./User", new { User.Id });
         }
     }

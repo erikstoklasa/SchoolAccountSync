@@ -10,11 +10,15 @@ namespace SchoolAccountSync.Pages.Sync
     {
         private readonly BakalariUserService bakalariUserService;
         private readonly LocalUserService localUserService;
+        private readonly SyncService syncService;
 
-        public BakalariModel(BakalariUserService bakalariUserService, LocalUserService localUserService)
+        public BakalariModel(BakalariUserService bakalariUserService,
+                             LocalUserService localUserService,
+                             SyncService syncService)
         {
             this.bakalariUserService = bakalariUserService;
             this.localUserService = localUserService;
+            this.syncService = syncService;
             UsersWithChanges = new List<(LocalUser, IEnumerable<Change>)>();
             ErrorMessage = "";
             SuccessMessage = "";
@@ -46,7 +50,7 @@ namespace SchoolAccountSync.Pages.Sync
                                 LastName = bakaUser.LastName,
                                 Birthdate = bakaUser.Birthdate,
                                 PersonalEmail = bakaUser.PersonalEmail,
-                                SchoolEmail = LocalUser.GenerateSchoolEmail(bakaUser.FirstName, bakaUser.LastName, bakaUser.UserType),
+                                SchoolEmail = LocalUser.GenerateSchoolEmail(bakaUser.FirstName, bakaUser.LastName, bakaUser.UserType, Users),
                                 Status = bakaUser.Status,
                                 UserType = bakaUser.UserType,
                                 LockerNumber = bakaUser.LockerNumber,
@@ -72,48 +76,11 @@ namespace SchoolAccountSync.Pages.Sync
             {
                 IEnumerable<BakalariUser> masterList = await bakalariUserService.GetStudents();
                 Users = await localUserService.GetUsers();
-                int updatedUsers = 0;
                 foreach (var bakaUser in masterList)
                 {
-                    LocalUser? localUser = Users.FirstOrDefault(u => u.Id == bakaUser.Id);
-                    if (localUser == null)
-                    {
-                        await localUserService.AddUser(
-                            new LocalUser()
-                            {
-                                Id = bakaUser.Id,
-                                FirstName = bakaUser.FirstName,
-                                LastName = bakaUser.LastName,
-                                Birthdate = bakaUser.Birthdate,
-                                PersonalEmail = bakaUser.PersonalEmail,
-                                SchoolEmail = LocalUser.GenerateSchoolEmail(bakaUser.FirstName, bakaUser.LastName, bakaUser.UserType),
-                                Status = bakaUser.Status,
-                                UserType = bakaUser.UserType,
-                                LockerNumber = bakaUser.LockerNumber,
-                                Class = bakaUser.Class,
-                            });
-                        continue;
-                    };
-                    IEnumerable<Change> changes = CompareService.GetDifferences(oldUser: localUser, newUser: bakaUser);
-                    if (changes.Any())
-                    {
-                        updatedUsers += await localUserService.UpdateUser(
-                            new LocalUser()
-                            {
-                                Id = bakaUser.Id,
-                                FirstName = bakaUser.FirstName,
-                                LastName = bakaUser.LastName,
-                                Birthdate = bakaUser.Birthdate,
-                                PersonalEmail = bakaUser.PersonalEmail,
-                                SchoolEmail = LocalUser.GenerateSchoolEmail(bakaUser.FirstName, bakaUser.LastName, bakaUser.UserType),
-                                Status = bakaUser.Status,
-                                UserType = bakaUser.UserType,
-                                LockerNumber = bakaUser.LockerNumber,
-                                Class = bakaUser.Class,
-                            });
-                    }
+                    await syncService.SyncBakalariUserWithLocal(bakaUser, Users);
                 }
-                SuccessMessage = $"Úspěšně aktualizováno ({updatedUsers})";
+                SuccessMessage = $"Úspěšně synchronizováno!";
             }
             catch (SqlException ex)
             {
