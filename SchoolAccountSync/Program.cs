@@ -8,6 +8,7 @@ builder.Services.AddScoped<BakalariUserService>();
 builder.Services.AddScoped<LocalUserService>();
 builder.Services.AddScoped<CopierService>();
 builder.Services.AddScoped<SyncService>();
+builder.Services.AddScoped<LibraryService>();
 
 var app = builder.Build();
 

@@ -1,0 +1,10 @@
+﻿@page
+@model SchoolAccountSync.Pages.Sync.LibraryModel
+@{
+    ViewData["Title"] = "Knihovna synchronizace";
+}
+<h1>Knihovna synchronizace</h1>
+<p>Po synchronizaci budou mít všichni uživatelé aktivní účty v knihovně.</p>
+<form asp-page-handler="Synchronize" method="post">
+    <input class="button-primary mt-2" type="submit" value="Synchronizovat s knihovnou" />
+</form>
