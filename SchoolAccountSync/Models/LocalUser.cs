@@ -21,6 +21,7 @@ namespace SchoolAccountSync.Models
         [MaxLength(35)]
         public string? PersonalEmail { get; set; }
         [MaxLength(8)]
+        [RegularExpression("^[a-fA-F0-9]+$", ErrorMessage = "Rfid musí být zadáno v hexadecimální soustavě.")]
         public string? Rfid { get; set; }
         [MaxLength(4)]
         public string LockerNumber { get; set; }

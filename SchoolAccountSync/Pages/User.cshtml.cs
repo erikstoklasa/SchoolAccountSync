@@ -9,7 +9,6 @@ namespace SchoolAccountSync.Pages
     {
         private readonly LocalUserService localUserService;
         private readonly CopierService copierService;
-        private readonly LibraryService libraryService;
         private readonly SyncService syncService;
 
         [BindProperty]
@@ -19,16 +18,13 @@ namespace SchoolAccountSync.Pages
         [BindProperty(SupportsGet = true)]
         public string ErrorMessage { get; set; }
         public bool IsSyncedWithCopiers { get; set; }
-        public LibraryUser? LibraryUser { get; set; }
 
         public UserModel(LocalUserService localUserService,
                          CopierService copierService,
-                         LibraryService libraryService,
                          SyncService syncService)
         {
             this.localUserService = localUserService;
             this.copierService = copierService;
-            this.libraryService = libraryService;
             this.syncService = syncService;
             SuccessMessage = "";
             ErrorMessage = "";
@@ -54,11 +50,17 @@ namespace SchoolAccountSync.Pages
         }
         public async Task<IActionResult> OnPostAsync()
         {
-            SuccessMessage = "Rfid úspěšně aktualozováno!";
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            if (User == null) return BadRequest();
             string? rfid = User.Rfid;
             User = await localUserService.GetUser(User.Id);
+            if (User == null) return NotFound();
             User.Rfid = rfid;
             await localUserService.UpdateUser(User);
+            SuccessMessage = "Rfid úspěšně aktualozováno!";
             return Page();
         }
         public async Task<IActionResult> OnPostSyncToCopiersAsync()

@@ -30,6 +30,7 @@
         <input type="hidden" asp-for="User.Id" />
         <label asp-for="User.Rfid">Rfid:</label>
         <input class="mx-2" asp-for="User.Rfid" autofocus />
+        <span asp-validation-for="User.Rfid" class="text-danger"></span>
         <input class="button-primary mt-2" type="submit" value="Uložit" />
     </form>
     <h2>Stav synchronizace</h2>
