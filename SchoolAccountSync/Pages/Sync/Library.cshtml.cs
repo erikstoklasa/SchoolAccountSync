@@ -15,7 +15,6 @@ namespace SchoolAccountSync.Pages.Sync
             this.libraryService = libraryService;
             this.localUserService = localUserService;
         }
-        public IEnumerable<LibraryUser>? LibraryUsers { get; set; }
         public void OnGet()
         {
 
