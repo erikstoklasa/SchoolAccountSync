@@ -9,6 +9,7 @@ builder.Services.AddScoped<LocalUserService>();
 builder.Services.AddScoped<CopierService>();
 builder.Services.AddScoped<SyncService>();
 builder.Services.AddScoped<LibraryService>();
+builder.Services.AddScoped<EntranceService>();
 
 var app = builder.Build();
 

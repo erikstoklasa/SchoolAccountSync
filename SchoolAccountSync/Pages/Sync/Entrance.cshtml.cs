@@ -1,24 +1,24 @@
-using FirebirdSql.Data.FirebirdClient;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SchoolAccountSync.Models;
 using SchoolAccountSync.Services;
+using System.Data.SqlClient;
 
 namespace SchoolAccountSync.Pages.Sync
 {
-    public class LibraryModel : PageModel
+    public class EntranceModel : PageModel
     {
-        private readonly LibraryService libraryService;
+        private readonly EntranceService entranceService;
         private readonly LocalUserService localUserService;
 
-        public LibraryModel(LibraryService libraryService, LocalUserService localUserService)
+        public EntranceModel(EntranceService entranceService, LocalUserService localUserService)
         {
-            this.libraryService = libraryService;
+            this.entranceService = entranceService;
             this.localUserService = localUserService;
             ErrorMessage = "";
         }
         public string ErrorMessage { get; set; }
-        public void OnGet()
+        public async Task OnGetAsync()
         {
 
         }
@@ -30,14 +30,17 @@ namespace SchoolAccountSync.Pages.Sync
                 if (user.Rfid == null) continue;
                 try
                 {
-                    await libraryService.UpdateUser(user.Id, user.Rfid);
-
+                    await entranceService.AddUserAsync(new()
+                    {
+                        EntranceCards = new List<EntranceCard>() { new EntranceCard() { RfidDecimal = user.Rfid } },
+                    });
                 }
-                catch (FbException ex)
+                catch (SqlException ex)
                 {
                     ErrorMessage = user + " " + ex.Message;
                     return Page();
                 }
+
             }
             return Page();
         }

@@ -1,0 +1,16 @@
+﻿@page
+@model SchoolAccountSync.Pages.Sync.EntranceModel
+@{
+    ViewData["Title"] = "Vstupy synchronizace";
+}
+<h1>Vstupy synchronizace</h1>
+@if (Model.ErrorMessage.Length > 0)
+{
+    <div class="alert alert-danger my-1" role="alert">
+        @Model.ErrorMessage
+    </div>
+}
+<p>Po synchronizaci budou mít všichni uživatelé, kteří mají rfid přístup ke vstupnímu systému.</p>
+<form asp-page-handler="Synchronize" method="post">
+    <input class="button-primary mt-2" type="submit" value="Synchronizovat se vstupy" />
+</form>
