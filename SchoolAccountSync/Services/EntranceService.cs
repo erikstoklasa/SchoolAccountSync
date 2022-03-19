@@ -5,15 +5,13 @@ namespace SchoolAccountSync.Services
 {
     public class EntranceService
     {
-        private readonly IConfiguration configuration;
 
-        public EntranceService(IConfiguration configuration)
+        public EntranceService()
         {
-            this.configuration = configuration;
         }
         public async Task UpdateUserCardAsync(string rfidOld, string rfidNew)
         {
-            using SqlConnection con = new(configuration["EntranceDatabase:DevelopmentConn"]);
+            using SqlConnection con = new(Environment.GetEnvironmentVariable("EntranceDatabase"));
             con.Open();
             using SqlCommand command = new(
                 "UPDATE [dbo].[ACCARD] SET [CRDNUM] = @NEWID WHERE [CRDNUM] LIKE '%'+@OLDID+'%';", con);
@@ -35,7 +33,7 @@ namespace SchoolAccountSync.Services
         }
         public async Task AddUserAsync(EntranceUser user)
         {
-            using SqlConnection con = new(configuration["EntranceDatabase:DevelopmentConn"]);
+            using SqlConnection con = new(Environment.GetEnvironmentVariable("EntranceDatabase"));
             con.Open();
             using SqlCommand command = new(
                 "INSERT INTO [dbo].[ACCARD] ([CRDNUM],[IDEXAMPL],[TYTARGET],[IDGROUP],[IDREADER],[TODATE],[FROMDATE],[DATATYPE],[DATATYP2],[TMZONNUM],[IDUSER],[IDUSERLOC]) " +

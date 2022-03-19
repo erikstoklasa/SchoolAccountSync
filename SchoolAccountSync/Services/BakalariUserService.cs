@@ -6,11 +6,9 @@ namespace SchoolAccountSync.Services
 {
     public class BakalariUserService
     {
-        private readonly IConfiguration configuration;
 
-        public BakalariUserService(IConfiguration configuration)
+        public BakalariUserService()
         {
-            this.configuration = configuration;
         }
         /// <summary>
         /// Gets students from the Bakalari SQL Server
@@ -20,7 +18,7 @@ namespace SchoolAccountSync.Services
         public async Task<ICollection<BakalariUser>> GetStudents()
         {
             List<BakalariUser> users = new();
-            using SqlConnection con = new(configuration["BakalariService:DevelopmentConn"]);
+            using SqlConnection con = new(Environment.GetEnvironmentVariable("BakalariDatabase"));
             con.Open();
             using SqlCommand command = new("SELECT [INTERN_KOD],[JMENO],[PRIJMENI],[DATUM_NAR],[E_MAIL],[DELETED_RC],[SKRINKA_C],[TRIDA] FROM zaci ORDER BY [PRIJMENI] ASC;", con);
             using SqlDataReader reader = await command.ExecuteReaderAsync();
@@ -51,7 +49,7 @@ namespace SchoolAccountSync.Services
         public async Task<BakalariUser> GetStudent(string id)
         {
 
-            using SqlConnection con = new(configuration["BakalariService:DevelopmentConn"]);
+            using SqlConnection con = new(Environment.GetEnvironmentVariable("BakalariDatabase"));
             con.Open();
             using SqlCommand command = new("SELECT TOP (1) [INTERN_KOD],[JMENO],[PRIJMENI],[DATUM_NAR],[E_MAIL],[DELETED_RC],[SKRINKA_C],[TRIDA] FROM zaci WHERE [INTERN_KOD] = @Id;", con);
             SqlParameter parameterId = new("@Id", id);

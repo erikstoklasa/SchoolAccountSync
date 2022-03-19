@@ -6,11 +6,9 @@ namespace SchoolAccountSync.Services
 {
     public class LocalUserService
     {
-        private readonly IConfiguration configuration;
 
-        public LocalUserService(IConfiguration configuration)
+        public LocalUserService()
         {
-            this.configuration = configuration;
         }
         /// <summary>
         /// Gets all local users
@@ -20,7 +18,7 @@ namespace SchoolAccountSync.Services
         public async Task<IEnumerable<LocalUser>> GetUsers()
         {
             List<LocalUser> users = new();
-            await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
+            await using NpgsqlConnection con = new(Environment.GetEnvironmentVariable("LocalDatabase"));
             await con.OpenAsync();
             await using (NpgsqlCommand cmd = new("SELECT id, first_name, last_name, birthdate, class, school_email," +
                 "personal_email, rfid, user_type, status, locker_number, temp_password FROM users ORDER BY last_name ASC", con))
@@ -55,7 +53,7 @@ namespace SchoolAccountSync.Services
             {
                 return users;
             }
-            await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
+            await using NpgsqlConnection con = new(Environment.GetEnvironmentVariable("LocalDatabase"));
             await con.OpenAsync();
 
             await using (NpgsqlCommand cmd = new("SELECT id, first_name, last_name, birthdate, class, school_email," +
@@ -98,7 +96,7 @@ namespace SchoolAccountSync.Services
             {
                 return users;
             }
-            await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
+            await using NpgsqlConnection con = new(Environment.GetEnvironmentVariable("LocalDatabase"));
             await con.OpenAsync();
 
             await using (NpgsqlCommand cmd = new("SELECT id, first_name, last_name, birthdate, class, school_email," +
@@ -137,7 +135,7 @@ namespace SchoolAccountSync.Services
 
         public async Task<LocalUser?> GetUser(string id)
         {
-            await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
+            await using NpgsqlConnection con = new(Environment.GetEnvironmentVariable("LocalDatabase"));
             await con.OpenAsync();
             LocalUser user;
             await using (NpgsqlCommand cmd = new("SELECT id, first_name, last_name, birthdate, class, school_email," +
@@ -173,7 +171,7 @@ namespace SchoolAccountSync.Services
         }
         public async Task<int> UpdateUser(LocalUser user)
         {
-            await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
+            await using NpgsqlConnection con = new(Environment.GetEnvironmentVariable("LocalDatabase"));
             await con.OpenAsync();
             await using NpgsqlCommand cmd = new("UPDATE users SET first_name = $1, last_name = $2, birthdate = $3, class = $4, school_email = $5, " +
                 "personal_email = $6, rfid = $7, user_type = $8, status = $9, locker_number = $10, temp_password = $11 WHERE id = $12", con)
@@ -198,7 +196,7 @@ namespace SchoolAccountSync.Services
         }
         public async Task<int> AddUser(LocalUser user)
         {
-            await using NpgsqlConnection con = new(configuration["LocalDatabase:DevelopmentConn"]);
+            await using NpgsqlConnection con = new(Environment.GetEnvironmentVariable("LocalDatabase"));
             await con.OpenAsync();
             await using NpgsqlCommand cmd = new("INSERT INTO users (id, first_name, last_name, birthdate, class, " +
                 "school_email, personal_email, rfid, user_type, status, locker_number, temp_password) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)", con)

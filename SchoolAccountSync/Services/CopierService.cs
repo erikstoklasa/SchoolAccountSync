@@ -5,11 +5,10 @@ namespace SchoolAccountSync.Services
 {
     public class CopierService
     {
-        private readonly IConfiguration configuration;
 
-        public CopierService(IConfiguration configuration)
+        public CopierService()
         {
-            this.configuration = configuration;
+            
         }
         /// <summary>
         /// Adds user with its cards
@@ -27,7 +26,7 @@ namespace SchoolAccountSync.Services
             {
                 throw new ArgumentException("School email can not be null", nameof(user.SchoolEmail));
             }
-            await using NpgsqlConnection con = new(configuration["CopiersDatabase:DevelopmentConn"]);
+            await using NpgsqlConnection con = new(Environment.GetEnvironmentVariable("CopiersDatabase"));
             NpgsqlTransaction trans = null;
             try
             {
@@ -149,7 +148,7 @@ namespace SchoolAccountSync.Services
         }
         public async Task<CopierUser?> GetUserByLogin(string login)
         {
-            await using NpgsqlConnection con = new(configuration["CopiersDatabase:DevelopmentConn"]);
+            await using NpgsqlConnection con = new(Environment.GetEnvironmentVariable("CopiersDatabase"));
             await con.OpenAsync();
             CopierUser user;
             NpgsqlCommand cmd = new("SELECT ext_id, name, surname, login, email, ou_id, name_ascii, surname_ascii, login_ascii, pass, id FROM users WHERE login = $1", con)
@@ -202,7 +201,7 @@ namespace SchoolAccountSync.Services
         }
         public async Task<int> UpdateUser(CopierUser user)
         {
-            await using NpgsqlConnection con = new(configuration["CopiersDatabase:DevelopmentConn"]);
+            await using NpgsqlConnection con = new(Environment.GetEnvironmentVariable("CopiersDatabase"));
             await con.OpenAsync();
             await using NpgsqlCommand cmd = new("UPDATE users SET ext_id = $1, name = $2, surname = $3, login = $4, email = $5, " +
                 "ou_id = $6, name_ascii = $7, surname_ascii = $8, login_ascii = $9, pass = $10 WHERE id = $11", con)
@@ -226,7 +225,7 @@ namespace SchoolAccountSync.Services
         }
         public async Task<int> DeleteUserWithCards(long internalId)
         {
-            await using NpgsqlConnection con = new(configuration["CopiersDatabase:DevelopmentConn"]);
+            await using NpgsqlConnection con = new(Environment.GetEnvironmentVariable("CopiersDatabase"));
             await con.OpenAsync();
 
             await using NpgsqlCommand cmd1 = new("DELETE FROM users_cards WHERE user_id = $1", con)
@@ -250,7 +249,7 @@ namespace SchoolAccountSync.Services
         }
         public async Task<int> AddCard(CopierCard copierCard)
         {
-            await using NpgsqlConnection con = new(configuration["CopiersDatabase:DevelopmentConn"]);
+            await using NpgsqlConnection con = new(Environment.GetEnvironmentVariable("CopiersDatabase"));
             await con.OpenAsync();
             await using NpgsqlCommand cmd = new("INSERT INTO users_cards (user_id,card) VALUES ($1,$2)", con)
             {
@@ -265,7 +264,7 @@ namespace SchoolAccountSync.Services
 
         public async Task<int> DeleteCards(long userInternalId)
         {
-            await using NpgsqlConnection con = new(configuration["CopiersDatabase:DevelopmentConn"]);
+            await using NpgsqlConnection con = new(Environment.GetEnvironmentVariable("CopiersDatabase"));
             await con.OpenAsync();
             await using NpgsqlCommand cmd = new("DELETE FROM users_cards WHERE user_id = $1", con)
             {
