@@ -32,7 +32,7 @@ namespace SchoolAccountSync.Pages.Sync
                 {
                     await entranceService.AddUserAsync(new()
                     {
-                        EntranceCards = new List<EntranceCard>() { new EntranceCard() { RfidDecimal = user.Rfid } },
+                        EntranceCards = new List<EntranceCard>() { new EntranceCard() { RfidDecimal = Convert.ToInt32(user.Rfid, 16).ToString() } },
                     });
                 }
                 catch (SqlException ex)
