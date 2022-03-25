@@ -1,0 +1,102 @@
+\documentclass[11pt,a4paper,twoside,openright]{report}
+
+\usepackage[top=25mm,bottom=25mm,right=25mm,left=30mm,head=12.5mm,foot=12.5mm]{geometry}
+\let\openright=\cleardoublepage
+
+\input{macros}
+
+\def\NazevPrace{Synchronizace účtů na škole}
+\def\Trida{4.B}
+\def\AutorPrace{Erik Stoklasa}
+\def\DatumOdevzdani{2022}
+
+% Vedoucí práce: Jméno a příjmení s~tituly
+\def\Vedouci{Emil Miler}
+
+% Studijní program a obor
+\def\StudijniProgram{studijní program}
+\def\StudijniObor{studijní obor}
+
+% Text čestného prohlášení
+\def\Prohlaseni{Prohlašuji, že jsem svou práci vypracoval samostatně a použil jsem pouze prameny a literaturu
+uvedené v~seznamu bibliografických záznamů. Nemám žádné námitky proti zpřístupňování této práce v~souladu se
+zákonem č. 121/2000 Sb. o~právu autorském, o~právech souvisejících s~právem autorským a
+o~změně některých zákonů (autorský zákon) ve znění pozdějších předpisů.}
+
+% Text poděkování
+\def\Podekovani{%
+Chtěl bych poděkovat Emilu Milerovi za všechny konzultace, které mi ochotně poskytl. Zároveň bych chtěl poděkovat Františku Šimordovi za představení všech školních systémů.
+}
+
+% Abstrakt česky
+\def\Abstrakt{%
+Maturitní projekt synchronizace školních systémů kopírek, Bakalářů, knihovny a vstupů.
+}
+
+% Abstrakt anglicky
+\def\AbstraktEN{%
+Maturita project dealing with synchronization of school systems ranging from copiers, Bakalari system to library and entrance systems.
+}
+
+% 3 až 5 klíčových slov
+\def\KlicovaSlova{synchronizace, školní systémy, databáze, .NET Core, PostgreSQL, MSSQL, Firebird}
+% 3 až 5 klíčových slov anglicky
+\def\KlicovaSlovaEN{synchronization, school management systems, database, .NET Core, PostgreSQL, MSSQL, Firebird}
+
+
+\begin{document}
+
+\include{titlepage}
+
+% Obsah
+\setcounter{tocdepth}{2}
+\tableofcontents
+
+\chapter{Teoretická část}
+\pagestyle{fancy}
+
+Na Gymnáziu Jana Keplera se nachází mnoho školních systémů, které se starají o chod školy. Od knihovny, přes tiskárny, až po systém, který se stará o to, aby se do budovy dostali jen ti povolaní, tedy vstupní systém. Školní administrátor pak pro každého studenta musí vytvořit a spravovat účet v daném systému. Toto by nebylo problém, pokud by na škole bylo šedesát studentů, každopádně při škole, která je domovem pro přibližně 600 studentů je nutnost pracovat s vícero systémy velice časově náročná. Cílem této maturitní práce je vytvořit aplikaci, která tyto systémy spravuje a školní administrátor pak nemusí ztrácet svůj čas rutinní prací.
+
+
+\chapter{Implementace}
+
+Projekt byl zpracován v .NET 6, což je open source framework pro vytváření programů, které lze spustit na operačních systémech Windows, Linux a macOS. Byl použit programovací model Razor pages, který je alternativou ke klasickému MVC. Zároveň je celý projekt zabalený v kontaineru díky platformě Docker. Pro lokální databázi jsem zvolil PostgreSQL.
+
+\section{.NET}
+Framework .NET jsem si pro vypracování vybral, jelikož je oproti alternativám jako je třeba Node.js mnohem rychlejší a zároveň není závislý na platformě, na které bude spuštěn, což byla jedna z neznámých, při zakládání projektu. V této platformě se také dobře pracuje s daty díky LINQ, který jsem často používal. Zároveň na všechny databáze, na které jsem se potřeboval připojit, existovaly drivery, které jsem mohl využít. 
+\section{Rešerše}
+Tato část práce, musím bohužel říct, trvala přibližně stejně, ne-li více času, než celková implementace. Vyznat se v hordách tabulek školních systémů, na které se musím připojit, a které jsou zároveň pojmenované naprosto nesmyslnými názvy (ACCARD, AULEA, SYS0901, SYS0902, atd.) bylo pro mě naprosto ubíjející. Zároveň jsem měl ale naprostou radost, jakmile jsem po desítkách hodnin studování různých databázových tabulek přišel, jak opravdu fungují. Vše bylo ale nutné udělat ještě před tím, než začnu implementovat celý projekt.
+\section{UX návrh}
+Po rešerši jsem se pustil do designového návrhu projektu. Pracoval jsem v programu Figma, kde jsem si postupně vytvořil stránky dashboardu, konkrétního zobrazení studentů nebo zobrazení změn uživatelů. Často mi také pomáhalo si před implementací kódu jen ve Figmě načrtnout, jak by daná funkce měla vypadat, implementace byla pak jadnodušší a rychlejší.
+\section{Napojení na systém tiskáren}
+Tiskárny na Gymnáziu Jana Keplera fungují na databázovém serveru PostgreSQL. Pro napojení k tomuto serveru jsem využil knihovny Npgsql. Zároveň musím zmínit, že i přes velký počet tabulek v databázi (asi 150) dávalo smysl jejich pojmenování a tím pádem bylo pochopení struktury databáze mnohem jednodušší, než u ostatních školních systémů.
+\section{Napojení na systém Bakaláři}
+Ze systému Bakaláři stahuji data, je to tedy takový centrální systém pravdy. Pokud se něco v systému Bakaláři změní, bere se to za pravdivý údaj. Struktura tabulek v tomto systému byla také poměrně složitá, ale alespoň byly poměrně smysluplně pojemnovány.
+\section{Napojení na systém knihovny}
+Připojení na systém knihoven mi trvalo zprovoznit poměrně dlouho, jelikož se v průběhu mojí implementace změnil název databáze a zároveň se ze strany dodavatelské firmy systémz znepřístupnily určité tabulky. Bylo tedy možné naimplementovat jen jednoduchý způsob synchronizace se systémem, ale nebylo možné provést plnou synchronizaci.  
+\section{Napojení na systém vstupních dveří}
+Asi nejstarší a také nejsložitější systém, se kterým jsem musel kdy pracovat. Stovky tabulek s nesmyslnými názvy, které mezi sebou nemají ani žádné vztahy, obsahují duplikáty různých údajů na spoustě míst, tedy systém, se kterým je opravdu složité pracovat. Nakonec se mi povedlo zprovoznit jednoduchou synchronizaci, která dokáže aktualizovat RFID na základě lokálních dat.
+\section{Budoucí vylepšení}
+Potenciálních vylepšení v systému vidím opravdu hodně, například přidání autentifikace, tak aby mohla aplikace běžet na serveru a nejen lokálně na jednom počítači. Dalším z vylepšení je možné hledání kolizí v RFID záznamech, systém vás sice upozorní, jakmile se budete snažit synchronizovat s duplikovaným RFID, ale bylo by lepší uživatele upozornit ještě předtím.  
+
+\chapter{Technická dokumentace}
+
+Pro spuštění projektu je nutné vytvořit si PostgreSQL server, na kterém si musíte vytvořit tabulku dle souboru dbinit.sql. Dále je nutné spustit projekt s příkazem docker run. Přidáme environment variables, jak uvádí README soubor a aplikace je spuštěná.
+
+\chapter*{Závěr}
+\pagestyle{empty}
+\addcontentsline{toc}{chapter}{Závěr}
+
+Projekt splnil zadání v plné míře, dokáže spravovat dané systémy, i když bylo těžké s nimi někdy pracovat. V prámci projektu jsem se toho naučil opravdu hodně, hlavně s různými typy databází a zpracování dat.
+
+%%% Seznam použité literatury
+\nocite{timcorey}\nocite{npgsql}
+\printbibliography[title={Seznam použité literatury},heading={bibintoc}]
+
+%%% Přílohy k práci, existují-li. Každá příloha musí být alespoň jednou
+%%% odkazována z vlastního textu práce. Přílohy se číslují.
+
+%\part*{Přílohy}
+%\appendix
+
+\end{document}
