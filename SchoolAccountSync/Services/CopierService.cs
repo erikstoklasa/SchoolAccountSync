@@ -94,7 +94,7 @@ namespace SchoolAccountSync.Services
         }
         public async Task<CopierUser?> GetUser(string externalId)
         {
-            await using NpgsqlConnection con = new(configuration["CopiersDatabase:DevelopmentConn"]);
+            await using NpgsqlConnection con = new(Environment.GetEnvironmentVariable("CopiersDatabase"));
             await con.OpenAsync();
             CopierUser user;
             NpgsqlCommand cmd = new("SELECT ext_id, name, surname, login, email, ou_id, name_ascii, surname_ascii, login_ascii, pass, id FROM users WHERE ext_id = $1", con)
