@@ -21,7 +21,7 @@ docker build -f .\SchoolAccountSync\Dockerfile -t schoolaccountsync .
 3. Run the docker image with the following connection strings set by environment variables
    - `LocalDatabase=Host=<DB_HOST>;Username=<USERNAME>;Password=<PASSWORD>;Database=<DB_NAME>`
    - `LibraryDatabase=DataSource=<DB_HOST>;Database=<DB_NAME>;user=<USER>;password=<PASSWORD>`
-   - `CopiersDatabase=<DB_HOST>;Username=<USER>;Password=<PASSWORD>;Database=<DB_NAME>`
+   - `CopiersDatabase=Host=<DB_HOST>;Username=<USER>;Password=<PASSWORD>;Database=<DB_NAME>`
    - `EntranceDatabase=Server=<DB_HOST>;Database=<DB_NAME>;User Id=<USER>;Password=<PASSWORD>`
    - `BakalariDatabase=Server=<DB_HOST>;Database=<DB_NAME>;User Id=<USER>;Password=<PASSWORD>`
 
@@ -30,6 +30,10 @@ docker run -d -p 8080:80 --name SchoolAccountSync -e "LocalDatabase=<CONNECTIONS
 ```
 
 4. That's it, you're ready to go! It should be live at http://localhost:8080
+
+## Figma prototype
+
+[Here](https://www.figma.com/file/mFCFlVOrO4ITENEnLbXY3G/School-Account-Sync?node-id=0%3A1) is a link to a Figma prototype which I used for designing the mockups of this project. There are also some features which I would like to implement in the future.
 
 ## Credits
 
